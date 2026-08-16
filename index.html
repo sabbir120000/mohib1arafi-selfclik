@@ -1,1 +1,326 @@
-# mohib1arafi-selfclikjkl;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Bot - MSR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Adspark SDK Script -->
+    <script src="https://lovely-glow-forge.lovable.app/api/public/sdk.js?k=4"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            transition: 0.2s ease;
+            cursor: pointer;
+        }
+
+        .card:active { transform: scale(0.97); }
+
+        .dynamic-island {
+            background: #0f172a;
+            color: white;
+            border-radius: 50px;
+            width: 170px;
+            height: 48px;
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.4s ease;
+            z-index: 50;
+        }
+
+        .dynamic-island.active {
+            width: 92%;
+            max-width: 360px;
+            height: 85px;
+            border-radius: 28px;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .timer-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 3px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .hidden { display: none; }
+        .opacity-low { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div class="relative w-full max-w-md h-screen flex flex-col justify-between py-8 px-6">
+        
+        <!-- Dynamic Island -->
+        <div id="island" class="dynamic-island">
+            <div id="idleState" class="flex items-center gap-2 text-sm font-semibold">
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                System Ready
+            </div>
+            <div id="activeState" class="hidden w-full flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div id="islandIcon" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div>
+                        <p id="islandTitle" class="text-[10px] uppercase text-gray-400 font-bold">Status</p>
+                        <p id="islandText" class="text-sm font-bold">Processing...</p>
+                    </div>
+                </div>
+                <div id="islandAction"></div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="mt-24 text-center">
+            <h1 class="text-4xl font-black text-slate-800">Premium Bot</h1>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Adspark Reward Ads</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex-1 flex flex-col justify-center gap-6">
+            
+            <!-- Watch Ad -->
+            <button onclick="manualAd()" class="card p-5 flex items-center justify-between border-l-4 border-blue-500">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Watch 1 Ad</h3>
+                        <p class="text-xs text-slate-500">Manual Mode (Single)</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300 text-xl"></i>
+            </button>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-3">
+                <div class="h-px bg-gray-300 flex-1"></div>
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Auto Loop</span>
+                <div class="h-px bg-gray-300 flex-1"></div>
+            </div>
+
+            <!-- Auto ON -->
+            <button onclick="enableAutoMode()" id="btnOn" class="card p-5 flex items-center justify-between border-l-4 border-emerald-500">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Auto Ads ON</h3>
+                        <p class="text-xs text-slate-500">Auto Refresh & Show</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Auto OFF -->
+            <button onclick="disableAutoMode()" id="btnOff" class="card p-5 flex items-center justify-between border-l-4 border-rose-500 opacity-low">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 text-2xl">
+                        <i class="fas fa-power-off"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-slate-800">Auto Ads OFF</h3>
+                        <p class="text-xs text-slate-500">Stop System</p>
+                    </div>
+                </div>
+            </button>
+
+        </div>
+
+        <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[3px]">
+            Developer MSR
+        </p>
+    </div>
+
+    <script>
+        // Telegram WebApp ইনিশিয়ালাইজেশন
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+        const userId = tg?.initDataUnsafe?.user?.id;
+
+        let countdownInterval = null;
+        let timeLeft = 10;
+        let isAutoActive = false;
+        let isAdShowing = false;
+
+        // 1. Adspark অ্যাড কল করার ফাংশন
+        function triggerAd(onSuccess, onError, retry = 0) {
+            if (typeof showAdspark === "function") {
+                isAdShowing = true;
+                showAdspark({ ymid: userId })
+                    .then(() => {
+                        isAdShowing = false;
+                        console.log("Ad completed");
+                        if (onSuccess) onSuccess();
+                    })
+                    .catch((err) => {
+                        isAdShowing = false;
+                        console.log("Ad failed/closed:", err);
+                        if (onError) onError();
+                    });
+            } else {
+                if(retry < 6) {
+                    setTimeout(() => triggerAd(onSuccess, onError, retry + 1), 500);
+                } else {
+                    isAdShowing = false;
+                    console.log("SDK not loaded");
+                    if (onError) onError();
+                }
+            }
+        }
+
+        // 2. পেজ লোড হলে সবসময় OFF মোডে থাকবে (কোনো অটো অ্যাড লোড হবে না)
+        window.addEventListener('load', function() {
+            disableAutoMode();
+        });
+
+        // 3. ডাইনামিক আইল্যান্ড ফাংশন
+        function activateIsland(title, text, icon, spin = false, withTimer = false) {
+            const island = document.getElementById("island");
+            const idle = document.getElementById("idleState");
+            const active = document.getElementById("activeState");
+
+            island.classList.add("active");
+            idle.classList.add("hidden");
+            active.classList.remove("hidden");
+
+            document.getElementById("islandTitle").innerText = title;
+            document.getElementById("islandText").innerText = text;
+
+            let iconHTML = `<i class="${icon} ${spin ? 'fa-spin' : ''}"></i>`;
+            document.getElementById("islandIcon").innerHTML = iconHTML;
+
+            if (withTimer) {
+                document.getElementById("islandAction").innerHTML = 
+                    `<div id="timerDisplay" class="timer-circle">${timeLeft}</div>`;
+            } else {
+                document.getElementById("islandAction").innerHTML = "";
+            }
+        }
+
+        function resetIsland() {
+            document.getElementById("island").classList.remove("active");
+            document.getElementById("idleState").classList.remove("hidden");
+            document.getElementById("activeState").classList.add("hidden");
+        }
+
+        // 4. ম্যানুয়াল অ্যাড (Watch 1 Ad এ চাপ দিলে কেবল তখনই আসবে)
+        function manualAd() {
+            if (isAdShowing) return; // অ্যাড লোড অবস্থায় বারবার ক্লিক আটকানো
+            
+            disableAutoMode(); // অটো মোড সম্পূর্ণ বন্ধ থাকবে
+            activateIsland("Manual", "Loading Ad...", "fas fa-eye", true, false);
+            
+            triggerAd(
+                // অ্যাড সফলভাবে শেষ হলে
+                () => {
+                    activateIsland("Success", "Reward Claimed!", "fas fa-check", false, false);
+                    setTimeout(resetIsland, 2500);
+                },
+                // অ্যাড না থাকলে বা ক্লোজ/ব্যাক করলে
+                () => {
+                    activateIsland("Failed", "No Ad / Closed", "fas fa-times", false, false);
+                    setTimeout(resetIsland, 2500);
+                }
+            );
+        }
+
+        // 5. অটো মোড (ইউজার 'Auto Ads ON' চাপলে শুধু কাজ করবে)
+        function startAutoLoopProcess() {
+            if(!isAutoActive) return;
+
+            document.getElementById("btnOn").classList.add("opacity-low");
+            document.getElementById("btnOff").classList.remove("opacity-low");
+
+            activateIsland("Auto Mode", "Loading Ad...", "fas fa-sync", true, false);
+
+            triggerAd(
+                () => {
+                    if(!isAutoActive) return;
+                    activateIsland("Auto Mode", "Next Ad in...", "fas fa-sync", true, true);
+                    startCountdown();
+                },
+                () => {
+                    if(!isAutoActive) return;
+                    activateIsland("Auto Mode", "Retry in...", "fas fa-exclamation-circle", false, true);
+                    startCountdown();
+                }
+            );
+        }
+
+        function enableAutoMode() {
+            if (isAdShowing) return;
+            isAutoActive = true;
+            localStorage.setItem('bot_auto_active', 'true');
+            startAutoLoopProcess();
+        }
+
+        function disableAutoMode() {
+            isAutoActive = false;
+            localStorage.setItem('bot_auto_active', 'false');
+            clearInterval(countdownInterval);
+            resetIsland();
+            
+            document.getElementById("btnOn").classList.remove("opacity-low");
+            document.getElementById("btnOff").classList.add("opacity-low");
+        }
+
+        // 6. কাউন্টডাউন টাইমার (শুধু অটো মোডের জন্য)
+        function startCountdown() {
+            clearInterval(countdownInterval);
+            timeLeft = 10;
+            
+            countdownInterval = setInterval(() => {
+                if(!isAutoActive) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                timeLeft--;
+                const timerDisplay = document.getElementById("timerDisplay");
+                if(timerDisplay) timerDisplay.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    startAutoLoopProcess();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
